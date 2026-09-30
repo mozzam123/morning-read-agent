@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+.env
+daily_read.db
+.DS_Store
