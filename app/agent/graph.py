@@ -90,17 +90,24 @@ class RecommendationGraph:
 
         return "rank"
 
-    def rank_article(self, state: RecommendationState):
+    def rank_article(
+        self,
+        state: RecommendationState,
+    ):
         candidates = state["candidates"]
         genre = state["genre"]
 
-        decision = self.ranker.rank(
-            genre=genre,
-            candidates=candidates,
-        )
+        try:
+            decision = self.ranker.rank(
+                genre=genre,
+                candidates=candidates,
+            )
+
+        except Exception as exc:
+            return {"error": (f"Article ranking failed: {str(exc)}")}
 
         if not 0 <= decision.selected_index < len(candidates):
-            return {"error": "LLM returned an invalid candidate index."}
+            return {"error": ("LLM returned an invalid candidate index.")}
 
         selected_article = candidates[decision.selected_index]
 

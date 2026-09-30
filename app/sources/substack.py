@@ -16,6 +16,9 @@ class SubstackSource(ContentSource):
 
         feed = feedparser.parse(rss_url)
 
+        if feed.bozo and not feed.entries:
+            raise ValueError(f"Invalid RSS feed: {rss_url}")
+
         articles = []
 
         for entry in feed.entries:
