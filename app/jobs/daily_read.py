@@ -1,7 +1,9 @@
 import logging
 
 from app.core.database import SessionLocal
+from app.delivery.email import EmailDelivery
 from app.services.genre_selector import GenreSelector
+from app.services.recommendation_history import RecommendationHistory
 from app.services.recommendation_service import RecommendationService
 
 
@@ -9,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 genre_selector = GenreSelector()
 recommendation_service = RecommendationService()
+recommendation_history = RecommendationHistory()
+delivery = EmailDelivery()
 
 
 def run_daily_read():
@@ -37,20 +41,24 @@ def run_daily_read():
 
         article = result["selected_article"]
 
-        print()
-        print("=" * 60)
-        print("☀️ TODAY'S READ")
-        print("=" * 60)
-        print(f"Topic: {genre}")
-        print()
-        print(article.title)
-        print()
-        print("Why this was selected:")
-        print(result["reason"])
-        print()
-        print(f"Read: {article.url}")
-        print("=" * 60)
-        print()
+        # Deliver first.
+        delivery.send(
+            genre=genre,
+            article=article,
+            reason=result["reason"],
+        )
+
+        # Only successful deliveries enter recommendation history.
+        recommendation_history.save(
+            genre=genre,
+            article=article,
+            db=db,
+        )
+
+        logger.info(
+            "Daily Read delivered successfully: %s",
+            article.title,
+        )
 
     except Exception:
         logger.exception("Daily Read job failed.")

@@ -30,11 +30,6 @@ class RecommendationGraph:
             self.rank_article,
         )
 
-        builder.add_node(
-            "save_recommendation",
-            self.save_recommendation,
-        )
-
         builder.add_edge(
             START,
             "collect_candidates",
@@ -49,17 +44,8 @@ class RecommendationGraph:
             },
         )
 
-        builder.add_conditional_edges(
-            "rank_article",
-            self.after_ranking,
-            {
-                "save": "save_recommendation",
-                "stop": END,
-            },
-        )
-
         builder.add_edge(
-            "save_recommendation",
+            "rank_article",
             END,
         )
 
@@ -115,34 +101,3 @@ class RecommendationGraph:
             "selected_article": selected_article,
             "reason": decision.reason,
         }
-
-    def save_recommendation(self, state: RecommendationState):
-        if state.get("error"):
-            return {}
-
-        article = state["selected_article"]
-
-        recommendation = Recommendation(
-            article_url=article.url,
-            title=article.title,
-            genre=state["genre"],
-            publication=article.publication,
-        )
-
-        self.db.add(recommendation)
-        self.db.commit()
-        self.db.refresh(recommendation)
-
-        return {
-            "recommendation_id": recommendation.id,
-        }
-
-    def after_ranking(
-        self,
-        state: RecommendationState,
-    ) -> str:
-
-        if state.get("error"):
-            return "stop"
-
-        return "save"

@@ -38,11 +38,8 @@ def generate_recommendation(
             detail=result["error"],
         )
 
-    article = result["selected_article"]
-
     return {
-        "recommendation_id": result["recommendation_id"],
         "genre": genre,
-        "article": article,
+        "article": result["selected_article"],
         "reason": result["reason"],
     }

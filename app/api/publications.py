@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 
 from app.core.database import SessionLocal
 from app.models.publication import Publication
@@ -38,8 +39,18 @@ def create_publication(
     )
 
     db.add(publication)
-    db.commit()
-    db.refresh(publication)
+
+    try:
+        db.commit()
+        db.refresh(publication)
+
+    except IntegrityError:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=409,
+            detail="Publication already exists.",
+        )
 
     return publication
 

@@ -12,6 +12,4 @@ class RecommendationState(TypedDict, total=False):
 
     reason: str
 
-    recommendation_id: int
-
     error: str

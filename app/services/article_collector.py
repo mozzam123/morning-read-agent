@@ -40,12 +40,13 @@ class ArticleCollector:
 
                 articles.extend(publication_articles)
 
-            except Exception:
-                logger.exception(
-                    "Failed to collect articles from publication=%s",
+            except Exception as exc:
+                logger.warning(
+                    "Skipping publication=%s: %s",
                     publication.name,
+                    exc,
                 )
 
-                continue
+            continue
 
         return articles

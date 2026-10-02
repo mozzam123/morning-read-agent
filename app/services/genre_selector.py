@@ -3,6 +3,7 @@ import random
 from sqlalchemy.orm import Session
 
 from app.models.preference import Preference
+from app.models.publication import Publication
 
 
 class GenreSelector:
@@ -12,11 +13,22 @@ class GenreSelector:
         db: Session,
     ) -> str:
 
-        preferences = db.query(Preference).all()
+        available_genres = (
+            db.query(Preference.genre)
+            .join(
+                Publication,
+                Publication.genre == Preference.genre,
+            )
+            .filter(
+                Publication.active.is_(True),
+            )
+            .distinct()
+            .all()
+        )
 
-        if not preferences:
-            raise ValueError("No user preferences configured.")
+        if not available_genres:
+            raise ValueError("No configured genres have active publications.")
 
-        selected = random.choice(preferences)
+        genres = [row[0] for row in available_genres]
 
-        return selected.genre
+        return random.choice(genres)
