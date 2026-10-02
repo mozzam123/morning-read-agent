@@ -1,7 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 from sqlalchemy.orm import Session
 
-from app.models.recommendation import Recommendation
 from app.agent.state import RecommendationState
 from app.services.article_ranker import ArticleRanker
 from app.services.candidate_service import CandidateService

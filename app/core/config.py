@@ -7,6 +7,8 @@ class Settings(BaseSettings):
 
     groq_api_key: str | None = None
 
+    interests: str = "System Design,AI Engineering"
+
     email_sender: str | None = None
     email_password: str | None = None
     email_recipient: str | None = None
@@ -19,6 +21,13 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
     )
+
+    def get_interests(self) -> list[str]:
+        return [
+            interest.strip()
+            for interest in self.interests.split(",")
+            if interest.strip()
+        ]
 
 
 settings = Settings()
