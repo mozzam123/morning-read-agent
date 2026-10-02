@@ -4,6 +4,9 @@ from app.models.preference import Preference
 from app.models.publication import Publication
 from app.sources.factory import get_content_source
 from app.sources.registry import CURATED_SOURCES
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PublicationSetupService:
@@ -22,6 +25,13 @@ class PublicationSetupService:
 
             if not sources:
                 unsupported.append(preference.genre)
+
+                logger.warning(
+                    "No curated publications available for interest='%s'. "
+                    "This interest will be skipped.",
+                    preference.genre,
+                )
+
                 continue
 
             for source_config in sources:
